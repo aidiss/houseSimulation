@@ -10,3 +10,10 @@ Possible refactoring:
 1. Implement JavaScript objects to store room/person information.
 2. Rename attributes/function names to follow python standards.
 3. Store location inside person instead of room.
+
+Usage.
+Run simulation file itself like
+`python myHouseSim.py` or
+`python jonsHouseSim.py`
+
+Or run `python simulate.py <project_name>` for example `python simulate.py myHouseSim`
