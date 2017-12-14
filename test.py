@@ -7,7 +7,7 @@ class Test(Simulation):
 	def setup(self):	
 		self.home = House()
 		
-		kitchen = Kitchen(self.home, "Kitchen")
+		kitchen = Kitchen(self.home, "Kitchen",)
 		cubbyRoom = Room(self.home, "Cubby Room")
 		diningRoom = Room(self.home, "Dining Room")
 		den = Room(self.home, "Den")

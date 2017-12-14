@@ -1,5 +1,5 @@
 import random
-from Person import Person
+from modules.Person import Person
 
 
 class House(object):

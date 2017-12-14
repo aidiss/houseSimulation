@@ -1,4 +1,5 @@
-from Simulation import *
+from actors import *
+from Simulation import Simulation
 
 
 class JonsHouseSim(Simulation):
@@ -34,4 +35,4 @@ class JonsHouseSim(Simulation):
 
 
 sim = JonsHouseSim()
-sim.run()
+sim.run(limit=100)

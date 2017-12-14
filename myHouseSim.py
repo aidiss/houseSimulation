@@ -1,5 +1,5 @@
-from Simulation import *
-
+from actors import *
+from Simulation import Simulation
 
 class MyHouseSim(Simulation):
     def __init__(self):
@@ -68,4 +68,4 @@ class MyHouseSim(Simulation):
 
 
 sim = MyHouseSim()
-sim.run()
+sim.run(limit=100)

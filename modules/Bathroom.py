@@ -1,4 +1,5 @@
 from modules.Room import Room
+from modules.Person import Person
 
 
 class Bathroom(Room):
@@ -8,7 +9,6 @@ class Bathroom(Room):
         self.occupied_by = None
 
     def addActor(self, actor):
-        from Person import Person
         Room.addActor(self, actor)
         if isinstance(actor, Person):
             self.occupied_by = actor
@@ -16,7 +16,6 @@ class Bathroom(Room):
             self.canEnter = False
 
     def removeActor(self, actor):
-        from Person import Person
         if isinstance(actor, Person):
             self.occupied_by = None
             self.occupied = False

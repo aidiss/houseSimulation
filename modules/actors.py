@@ -1,8 +1,110 @@
 import random
-from modules.Actor import Actor
-from modules.Room import Room
-from modules.Kitchen import Kitchen
-from modules.Bathroom import Bathroom
+
+class House(object):
+    def __init__(self):
+        self.rooms = []
+        self.actors = []
+
+    def __str__(self):
+        house_string = ""
+        for room in self.rooms:
+            house_string = house_string + str(room) + "\n\n"
+        return house_string[:-2]
+
+    def __iter__(self):
+        return iter(self.rooms)
+
+    def getDictionary(self):
+        return_dict = {}
+        for room in self.rooms:
+            return_dict[room.name] = room.getDictionary()
+
+        return return_dict
+
+    def getRooms(self):
+        return self.rooms
+
+    def placePersonInRoom(self, person):
+        for room in self.rooms:
+            if person in room.actors_in_room:
+                room.removeActor(person)
+
+        placed = False
+        while not placed:
+            i = random.randint(0, len(self.rooms) - 1)
+            if self.rooms[i].can_enter:
+                self.rooms[i].addActor(person)
+                placed = True
+
+    def addRooms(self, rooms):
+        for room in rooms:
+            if room not in self.rooms:
+                self.rooms.append(room)
+
+    def hasRoomType(self, roomType):
+        for room in self.rooms:
+            if isinstance(room, roomType):
+                return True
+
+        return False
+
+    def tick(self):
+        for actor in self.actors:
+            actor.tick()
+
+    def toString_people(self):
+        string = "People in house\n[name,\t\tage,\thngr,\tbthrm,\tstatus]:\n"
+        for actor in self.actors:
+            if isinstance(actor, Person):
+                if len(actor.name) < 6:
+                    string = (string + "[" + actor.name + ",\t\t" + str(actor.age) + ",\t" +
+                              str(actor.hunger) + ",\t" + str(actor.bathroom_need) + ",\t" +
+                              actor.status + "]\n")
+                else:
+                    string = (string + "[" + actor.name + ",\t" + str(actor.age) + ",\t" +
+                              str(actor.hunger) + ",\t" + str(actor.bathroom_need) + ",\t" +
+                              actor.status + "]\n")
+
+        return string
+
+
+
+class Actor(object):
+    def __init__(self, house, name):
+        self.name = name
+        self.house = house
+        self.house.actors.append(self)
+        self.status = "nothing"
+
+        self.prev_room = self.getRoom()
+
+    def __str__(self):
+        return self.name
+
+    def tick(self):
+        pass
+
+    def getRoom(self):
+        for room in self.house:
+            if self in room.actors_in_room:
+                return room
+
+    # Moves an actor to a room. If the room is not enterable, they will stay in
+    # the same room.
+    def moveToRoom(self, room):
+        # print(self.name +" moving from " + self.getRoom().name + " to " + room.name)
+        if room.can_enter is False:
+            room = self.getRoom()
+        if self.prev_room != self.getRoom():
+            self.prev_room = self.getRoom()
+        self.getRoom().removeActor(self)
+        room.addActor(self)
+
+    def getDictionary(self):
+        return_dict = {
+            'name' : self.name
+        }
+        return return_dict
 
 
 class Person(Actor):
@@ -221,3 +323,144 @@ class Person(Actor):
     def fprint(self, string):
         if self.print_flag:
             print(string)
+
+
+
+
+
+
+class Room(object):
+    def __init__(self, house, name):
+        self.name = name
+        self.house = house
+        self.connections = []
+        self.actors_in_room = []
+
+        self.connection_north = None
+        self.connection_south = None
+        self.connection_east = None
+        self.connection_west = None
+
+        self.house.addRooms([self])
+        self.can_enter = True
+
+    def __str__(self):
+        string = "Room: " + self.name + "\n"
+        string = string + "Connections: "
+        for connection in self.connections:
+            string = string + connection.name + ", "
+        string = string[:-2]
+
+        string = string + "\nActors in Room: \n"
+        num_actors_in_room = len(self.actors_in_room)
+        if num_actors_in_room == 0:
+            string = string + "\n"
+            string = string[:-1]
+        else:
+            for actor in self.actors_in_room:
+                string = string + actor.name + ", "
+            string = string[:-2]
+        return string
+
+    def getDictionary(self):
+        return_dict = {}
+
+        connections_dict = {}
+        if self.connection_north is not None:
+            connections_dict['connection_north'] = self.connection_north.name
+        if self.connection_south is not None:
+            connections_dict['connection_south'] = self.connection_south.name
+        if self.connection_east is not None:
+            connections_dict['connection_east'] = self.connection_east.name
+        if self.connection_west is not None:
+            connections_dict['connection_west'] = self.connection_west.name
+        num_connections = len(connections_dict.values())
+        if num_connections > 0:
+            return_dict['Connections'] = connections_dict
+        num_actors_in_room = len(self.actors_in_room)
+        if num_actors_in_room > 0:
+            actors_dict = {}
+
+            for actor in self.actors_in_room:
+                actors_dict[actor.name] = actor.getDictionary()
+
+            return_dict['Actors'] = actors_dict
+
+        return return_dict
+
+    def addConnection(self, connecting_room, direction):
+        self.connections.append(connecting_room)
+        connecting_room.connections.append(self)
+
+        if direction == 'N':
+            self.connection_north = connecting_room
+            connecting_room.connection_south = self
+        elif direction == 'S':
+            self.connection_south = connecting_room
+            connecting_room.connection_north = self
+        elif direction == 'W':
+            self.connection_west = connecting_room
+            connecting_room.connection_east = self
+        elif direction == 'E':
+            self.connection_east = connecting_room
+            connecting_room.connection_west = self
+        else:
+            print('Invalid direction. Exiting.')
+            exit(1)
+
+    def addActor(self, actor):
+
+        if isinstance(actor, Person):
+            for room in self.house:
+                if actor in room.actors_in_room:
+                    room.removeActor(actor)
+            if self.can_enter:
+                self.actors_in_room.append(actor)
+        else:
+            self.actors_in_room.append(actor)
+
+    def removeActor(self, actor):
+        self.actors_in_room.remove(actor)
+
+    def getConnections(self):
+        return self.connections
+
+    def getConnectionNames(self):
+        names = []
+        for conn in self.connections:
+            names.append(conn.name)
+
+        return names
+
+
+
+class Bathroom(Room):
+    def __init__(self, house, name):
+        Room.__init__(self, house, name)
+        self.occupied = False
+        self.occupied_by = None
+
+    def addActor(self, actor):
+        Room.addActor(self, actor)
+        if isinstance(actor, Person):
+            self.occupied_by = actor
+            self.occupied = True
+            self.canEnter = False
+
+    def removeActor(self, actor):
+        if isinstance(actor, Person):
+            self.occupied_by = None
+            self.occupied = False
+            self.canEnter = True
+            Room.removeActor(self, actor)
+        else:
+            Room.removeActor(self, actor)
+
+
+
+
+
+class Kitchen(Room):
+    def __init__(self, house, name):
+        Room.__init__(self, house, name)
+

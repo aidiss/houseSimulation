@@ -1,3 +1,4 @@
+from modules.Person import Person
 class Room(object):
     def __init__(self, house, name):
         self.name = name
@@ -78,7 +79,7 @@ class Room(object):
             exit(1)
 
     def addActor(self, actor):
-        from modules.Person import Person
+
         if isinstance(actor, Person):
             for room in self.house:
                 if actor in room.actors_in_room:

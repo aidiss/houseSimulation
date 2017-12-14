@@ -1,4 +1,4 @@
-from Room import Room
+from modules.Room import Room
 
 
 class Kitchen(Room):

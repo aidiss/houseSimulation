@@ -1,9 +1,10 @@
-from modules import *
+from actors import House
 import time
 import json
 
 
 class Simulation:
+    print('Yes')
     def __init__(self):
         self.home = None
         self.time_string = "12:00"
@@ -66,22 +67,25 @@ class Simulation:
     def setup(self):
         self.home = House()
 
-    def run(self):
+    def run(self, limit):
         self.setup()
+
         while True:
             self.home.tick()
             self.tick_num += 1
-            output = open("output.txt", "w")
-            output.write("Time: " + self.time_string + "\n\n")
+            # output = open("output.txt", "w")
+            # output.write("Time: " + self.time_string + "\n\n")
             self.updateClock()
-            output.write(self.home.toString_people())
-            output.write("\n\n")
-            output.write(str(self.home))
-            output.close()
+            # output.write(self.home.toString_people())
+            # output.write("\n\n")
+            # output.write(str(self.home))
+            # output.close()
 
-            with open('output.txt', 'w') as fp:
-                fp.write(json.dumps(self.home.getDictionary(), indent=4, sort_keys=True))
+            # with open('output.txt', 'w') as fp:
+            #     fp.write(json.dumps(self.home.getDictionary(), indent=4, sort_keys=True))
 
             print(self.tick_num)
 
             #time.sleep(1)
+            if self.tick_num == limit:
+                break
